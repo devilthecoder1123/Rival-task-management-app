@@ -1,5 +1,7 @@
 # TaskApp — Full-Stack Task Management
 
+🔗 **Live demo:** https://rival-task-management-app.onrender.com/
+
 A full-stack task management application built with Next.js, Express, Prisma, and PostgreSQL. Authenticated users can create, organize, search, sort, and filter tasks with priority, status, and due dates.
 
 ## Tech Stack
