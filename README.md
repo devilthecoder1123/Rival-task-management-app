@@ -4,14 +4,14 @@ A full-stack task management application built with Next.js, Express, Prisma, an
 
 ## Tech Stack
 
-| Layer    | Choice |
-| -------- | ------ |
-| Frontend | Next.js 14 (App Router), TypeScript, Tailwind CSS, React Hook Form + Zod |
-| Backend  | Node.js, Express, TypeScript, Prisma ORM |
-| Database | PostgreSQL 16 |
-| Auth     | JWT in httpOnly cookies (with `Bearer` header fallback for API clients) |
-| Testing  | Vitest (both ends), Testing Library (frontend) |
-| Tooling  | Docker Compose, GitHub Actions |
+| Layer    | Choice                                                                   |
+| -------- | ------------------------------------------------------------------------ |
+| Frontend | Next.js 14 (App Router), TypeScript, Tailwind CSS |
+| Backend  | Node.js, Express, TypeScript, Prisma ORM                                 |
+| Database | PostgreSQL 16                                                            |
+| Auth     | JWT in httpOnly cookies (with `Bearer` header fallback for API clients)  |
+| Testing  | jest Testing Library (frontend)                           |
+| Tooling  | Docker Compose, GitHub Actions                                           |
 
 ## Project Layout
 
@@ -63,6 +63,21 @@ To stop and wipe the DB volume:
 docker compose down -v
 ```
 
+## Deploying to Render
+
+This repo is now configured for Render using `render.yaml` at the project root. To deploy both services live:
+
+1. Push the repo to GitHub.
+2. Create a new Render account and connect your GitHub repository.
+3. Render will detect `render.yaml` and create three services:
+   - `taskapp-db` (PostgreSQL)
+   - `taskapp-backend` (Docker web service)
+   - `taskapp-frontend` (Docker web service)
+4. In Render, update the backend and frontend env vars with the actual generated service URLs.
+5. Use the frontend service URL as your live app link.
+
+> Note: replace the placeholder values in `render.yaml` for `JWT_SECRET`, `FRONTEND_URL`, and `NEXT_PUBLIC_API_URL` with the real Render service URLs after deployment.
+
 ## Quick Start — Local Development
 
 ### 1. PostgreSQL
@@ -100,21 +115,21 @@ npm run dev                   # opens http://localhost:3000
 
 ### Backend (`backend/.env`)
 
-| Variable | Required | Description |
-| -------- | -------- | ----------- |
-| `NODE_ENV` | no | `development` \| `production` \| `test`. Default: `development`. |
-| `PORT` | no | API port. Default: `4000`. |
-| `DATABASE_URL` | **yes** | Postgres connection string. |
-| `JWT_SECRET` | **yes** | At least 16 chars. Generate with `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`. |
-| `JWT_EXPIRES_IN` | no | E.g. `7d`, `1h`. Default: `7d`. |
-| `FRONTEND_URL` | no | Allowed CORS origin. Default: `http://localhost:3000`. |
-| `COOKIE_SECURE` | no | `true` in production behind HTTPS. Default: `false`. |
+| Variable         | Required | Description                                                                                                  |
+| ---------------- | -------- | ------------------------------------------------------------------------------------------------------------ |
+| `NODE_ENV`       | no       | `development` \| `production` \| `test`. Default: `development`.                                             |
+| `PORT`           | no       | API port. Default: `4000`.                                                                                   |
+| `DATABASE_URL`   | **yes**  | Postgres connection string.                                                                                  |
+| `JWT_SECRET`     | **yes**  | At least 16 chars. Generate with `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`. |
+| `JWT_EXPIRES_IN` | no       | E.g. `7d`, `1h`. Default: `7d`.                                                                              |
+| `FRONTEND_URL`   | no       | Allowed CORS origin. Default: `http://localhost:3000`.                                                       |
+| `COOKIE_SECURE`  | no       | `true` in production behind HTTPS. Default: `false`.                                                         |
 
 ### Frontend (`frontend/.env.local`)
 
-| Variable | Required | Description |
-| -------- | -------- | ----------- |
-| `NEXT_PUBLIC_API_URL` | **yes** | Backend base URL, including `/api`. Default: `http://localhost:4000/api`. |
+| Variable              | Required | Description                                                               |
+| --------------------- | -------- | ------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL` | **yes**  | Backend base URL, including `/api`. Default: `http://localhost:4000/api`. |
 
 ## API Reference
 
@@ -122,33 +137,33 @@ All task routes require authentication. The JWT can be passed as either the `tok
 
 ### Auth
 
-| Method | Endpoint | Body | Response |
-| ------ | -------- | ---- | -------- |
+| Method | Endpoint           | Body                        | Response                              |
+| ------ | ------------------ | --------------------------- | ------------------------------------- |
 | `POST` | `/api/auth/signup` | `{ name, email, password }` | `201` `{ user, token }` + sets cookie |
-| `POST` | `/api/auth/login`  | `{ email, password }` | `200` `{ user, token }` + sets cookie |
-| `POST` | `/api/auth/logout` | — | `204` + clears cookie |
-| `GET`  | `/api/auth/me`     | — | `200` `{ user }` |
+| `POST` | `/api/auth/login`  | `{ email, password }`       | `200` `{ user, token }` + sets cookie |
+| `POST` | `/api/auth/logout` | —                           | `204` + clears cookie                 |
+| `GET`  | `/api/auth/me`     | —                           | `200` `{ user }`                      |
 
 ### Tasks
 
-| Method | Endpoint | Description |
-| ------ | -------- | ----------- |
-| `GET`    | `/api/tasks` | List tasks. Query: `status`, `search`, `sortBy`, `sortOrder`, `page`, `pageSize`. |
-| `POST`   | `/api/tasks` | Create task. Body: `{ title, description?, status?, priority?, dueDate? }`. |
-| `GET`    | `/api/tasks/:id` | Get one task. |
-| `PATCH`  | `/api/tasks/:id` | Partial update. |
-| `DELETE` | `/api/tasks/:id` | Delete. |
+| Method   | Endpoint         | Description                                                                       |
+| -------- | ---------------- | --------------------------------------------------------------------------------- |
+| `GET`    | `/api/tasks`     | List tasks. Query: `status`, `search`, `sortBy`, `sortOrder`, `page`, `pageSize`. |
+| `POST`   | `/api/tasks`     | Create task. Body: `{ title, description?, status?, priority?, dueDate? }`.       |
+| `GET`    | `/api/tasks/:id` | Get one task.                                                                     |
+| `PATCH`  | `/api/tasks/:id` | Partial update.                                                                   |
+| `DELETE` | `/api/tasks/:id` | Delete.                                                                           |
 
 **Query parameters for `GET /api/tasks`:**
 
-| Param | Values | Default |
-| ----- | ------ | ------- |
-| `status` | `PENDING` \| `IN_PROGRESS` \| `COMPLETED` | — |
-| `search` | string — case-insensitive title match | — |
-| `sortBy` | `createdAt` \| `dueDate` \| `priority` \| `title` | `createdAt` |
-| `sortOrder` | `asc` \| `desc` | `desc` |
-| `page` | integer ≥ 1 | `1` |
-| `pageSize` | integer 1–100 | `10` |
+| Param       | Values                                            | Default     |
+| ----------- | ------------------------------------------------- | ----------- |
+| `status`    | `PENDING` \| `IN_PROGRESS` \| `COMPLETED`         | —           |
+| `search`    | string — case-insensitive title match             | —           |
+| `sortBy`    | `createdAt` \| `dueDate` \| `priority` \| `title` | `createdAt` |
+| `sortOrder` | `asc` \| `desc`                                   | `desc`      |
+| `page`      | integer ≥ 1                                       | `1`         |
+| `pageSize`  | integer 1–100                                     | `10`        |
 
 Filtering, search, and sort all compose — e.g. `?status=PENDING&search=report&sortBy=dueDate&sortOrder=asc&page=2`.
 

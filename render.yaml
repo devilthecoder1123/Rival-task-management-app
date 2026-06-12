@@ -1,0 +1,44 @@
+services:
+  - type: postgres
+    name: taskapp-db
+    plan: starter
+    env: docker
+    databaseName: taskapp
+
+  - type: web_service
+    name: taskapp-backend
+    env: docker
+    branch: main
+    dockerfilePath: backend/Dockerfile
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taskapp-db
+          property: connectionString
+      - key: JWT_SECRET
+        value: please-change-me-to-a-long-random-string-in-prod
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: FRONTEND_URL
+        value: https://taskapp-frontend.onrender.com
+      - key: COOKIE_SECURE
+        value: "true"
+
+  - type: web_service
+    name: taskapp-frontend
+    env: docker
+    branch: main
+    dockerfilePath: frontend/Dockerfile
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://taskapp-backend.onrender.com/api
