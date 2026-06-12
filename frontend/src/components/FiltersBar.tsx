@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import type { SortField, SortOrder, TaskStatus } from '@/types';
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
   onSortChange: (sortBy: SortField, sortOrder: SortOrder) => void;
 }
 
-export function FiltersBar({
+function FiltersBarComponent({
   status,
   search,
   sortBy,
@@ -88,3 +89,5 @@ export function FiltersBar({
     </div>
   );
 }
+
+export const FiltersBar = memo(FiltersBarComponent);

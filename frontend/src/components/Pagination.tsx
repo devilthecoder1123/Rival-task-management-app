@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import clsx from 'clsx';
 
 interface Props {
@@ -8,7 +9,7 @@ interface Props {
   onPageChange: (page: number) => void;
 }
 
-export function Pagination({ page, totalPages, onPageChange }: Props) {
+function PaginationComponent({ page, totalPages, onPageChange }: Props) {
   if (totalPages <= 1) return null;
 
   // Build a compact page-window: first, last, current ±1, with ellipses.
@@ -71,3 +72,5 @@ export function Pagination({ page, totalPages, onPageChange }: Props) {
     </nav>
   );
 }
+
+export const Pagination = memo(PaginationComponent);

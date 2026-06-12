@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { StatusBadge, PriorityBadge } from './Badges';
@@ -13,7 +14,7 @@ interface Props {
   pending?: boolean; // shows a faint loading state for optimistic updates
 }
 
-export function TaskCard({ task, onToggleComplete, onDelete, pending }: Props) {
+function TaskCardComponent({ task, onToggleComplete, onDelete, pending }: Props) {
   const overdue = isOverdue(task.dueDate, task.status);
   const completed = task.status === 'COMPLETED';
 
@@ -68,3 +69,5 @@ export function TaskCard({ task, onToggleComplete, onDelete, pending }: Props) {
     </article>
   );
 }
+
+export const TaskCard = memo(TaskCardComponent);

@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRedirectIfUnauthenticated } from '@/hooks/useAuthGuard';
@@ -9,6 +10,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FiltersBar } from '@/components/FiltersBar';
 import { Pagination } from '@/components/Pagination';
 import { EmptyState, ErrorState, LoadingSpinner } from '@/components/States';
+import type { SortField, SortOrder, TaskStatus } from '@/types';
 
 export default function TasksPage() {
   const { user, loading: authLoading } = useAuth();
@@ -38,6 +40,23 @@ export default function TasksPage() {
     toggleTaskComplete,
   } = useTaskList(user);
 
+  const handleStatusChange = useCallback((value: TaskStatus | '') => {
+    setStatus(value);
+  }, [setStatus]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+  }, [setSearch]);
+
+  const handleSortChange = useCallback((by: SortField, order: SortOrder) => {
+    setSortBy(by);
+    setSortOrder(order);
+  }, [setSortBy, setSortOrder]);
+
+  const handlePageChange = useCallback((value: number) => {
+    setPage(value);
+  }, [setPage]);
+
   if (authLoading || !user) return <LoadingSpinner />;
 
   return (
@@ -59,12 +78,9 @@ export default function TasksPage() {
         search={search}
         sortBy={sortBy}
         sortOrder={sortOrder}
-        onStatusChange={setStatus}
-        onSearchChange={setSearch}
-        onSortChange={(by, order) => {
-          setSortBy(by);
-          setSortOrder(order);
-        }}
+        onStatusChange={handleStatusChange}
+        onSearchChange={handleSearchChange}
+        onSortChange={handleSortChange}
       />
 
       {loading ? (
@@ -103,7 +119,7 @@ export default function TasksPage() {
 
       {pagination && pagination.totalPages > 1 && (
         <div className="pt-4">
-          <Pagination page={pagination.page} totalPages={pagination.totalPages} onPageChange={setPage} />
+          <Pagination page={pagination.page} totalPages={pagination.totalPages} onPageChange={handlePageChange} />
         </div>
       )}
 
