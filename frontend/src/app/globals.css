@@ -12,8 +12,15 @@
     --muted-foreground: 100 116 139;
     --primary: 15 23 42;
     --primary-foreground: 255 255 255;
+    --secondary: 241 245 249;
+    --secondary-foreground: 15 23 42;
     --danger: 220 38 38;
     --danger-foreground: 255 255 255;
+    --input-bg: 255 255 255;
+    --input-text: 15 23 42;
+    --input-border: 226 232 240;
+    --label-text: 71 85 105;
+    --shadow: 0_22px_80px_-40px_rgba(15,23,42,0.35);
   }
 
   .dark {
@@ -25,8 +32,15 @@
     --muted-foreground: 161 161 170;
     --primary: 129 140 248;
     --primary-foreground: 17 24 39;
+    --secondary: 39 39 42;
+    --secondary-foreground: 226 232 240;
     --danger: 248 113 113;
     --danger-foreground: 17 24 39;
+    --input-bg: 15 15 20;
+    --input-text: 226 232 240;
+    --input-border: 63 63 70;
+    --label-text: 148 163 184;
+    --shadow: 0_22px_80px_-40px_rgba(0,0,0,0.35);
   }
 
   html {
@@ -57,29 +71,48 @@
   }
 
   .btn-primary {
-    @apply bg-slate-900 text-white hover:bg-slate-800;
+    @apply text-[rgb(var(--primary-foreground))];
+    background-color: rgb(var(--primary));
   }
 
   .btn-secondary {
-    @apply bg-slate-100 text-slate-900 hover:bg-slate-200;
+    @apply text-[rgb(var(--secondary-foreground))];
+    background-color: rgb(var(--secondary));
   }
 
   .btn-danger {
-    @apply bg-rose-600 text-white hover:bg-rose-500;
+    @apply text-[rgb(var(--danger-foreground))];
+    background-color: rgb(var(--danger));
+  }
+
+  .btn-primary:hover {
+    filter: brightness(0.92);
+  }
+
+  .btn-secondary:hover {
+    filter: brightness(0.96);
+  }
+
+  .btn-danger:hover {
+    filter: brightness(0.94);
   }
 
   .input {
-    @apply block w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm text-slate-900 shadow-sm
+    @apply block w-full rounded-2xl border border-border px-4 py-3 text-sm shadow-sm
       placeholder:text-slate-400 transition duration-150 ease-in-out
-      focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200;
+      focus:outline-none focus:ring-2 focus:ring-slate-200;
+    background-color: rgb(var(--input-bg));
+    color: rgb(var(--input-text));
   }
 
   .label {
-    @apply mb-3 block text-sm font-semibold text-slate-700;
+    @apply mb-3 block text-sm font-semibold;
+    color: rgb(var(--label-text));
   }
 
   .card {
-    @apply rounded-[28px] border border-border bg-white/95 p-6 shadow-[0_22px_80px_-40px_rgba(15,23,42,0.35)];
+    @apply rounded-[28px] border border-border p-6 shadow-[var(--shadow)];
+    background-color: rgb(var(--card));
   }
 
   .badge {
