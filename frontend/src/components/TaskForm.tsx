@@ -1,17 +1,10 @@
 'use client';
 
-import { useState, type ChangeEvent, type FormEvent } from 'react';
-import { toDateInputValue } from '@/lib/date';
-import { isValidDate } from '@/lib/validation';
-import type { Task, TaskPriority, TaskStatus } from '@/types';
+import { useTaskForm, type TaskFormValues } from '@/hooks/useTaskForm';
+import { PRIORITY_LABELS, PRIORITY_OPTIONS, STATUS_LABELS, STATUS_OPTIONS } from '@/constants/task';
+import type { Task } from '@/types';
 
-export type TaskFormValues = {
-  title: string;
-  description?: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  dueDate?: string;
-};
+export type { TaskFormValues } from '@/hooks/useTaskForm';
 
 interface Props {
   initial?: Task;
@@ -20,95 +13,11 @@ interface Props {
   onCancel?: () => void;
 }
 
-interface FormErrors {
-  title?: string;
-  description?: string;
-  status?: string;
-  priority?: string;
-  dueDate?: string;
-  root?: string;
-}
-
-const statusOptions: TaskStatus[] = ['PENDING', 'IN_PROGRESS', 'COMPLETED'];
-const priorityOptions: TaskPriority[] = ['LOW', 'MEDIUM', 'HIGH'];
-
 export function TaskForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
-  const [values, setValues] = useState<TaskFormValues>({
-    title: initial?.title ?? '',
-    description: initial?.description ?? '',
-    status: (initial?.status ?? 'PENDING') as TaskStatus,
-    priority: (initial?.priority ?? 'MEDIUM') as TaskPriority,
-    dueDate: toDateInputValue(initial?.dueDate),
+  const { values, errors, isSubmitting, handleChange, handleSubmit } = useTaskForm({
+    initial,
+    onSubmit,
   });
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const validate = (currentValues: TaskFormValues) => {
-    const next: FormErrors = {};
-
-    if (!currentValues.title.trim()) {
-      next.title = 'Title is required';
-    } else if (currentValues.title.length > 200) {
-      next.title = 'Title must be 200 characters or less';
-    }
-
-    if (currentValues.description && currentValues.description.length > 2000) {
-      next.description = 'Description must be 2000 characters or less';
-    }
-
-    if (!statusOptions.includes(currentValues.status)) {
-      next.status = 'Choose a valid status';
-    }
-
-    if (!priorityOptions.includes(currentValues.priority)) {
-      next.priority = 'Choose a valid priority';
-    }
-
-    if (currentValues.dueDate && !isValidDate(currentValues.dueDate)) {
-      next.dueDate = 'Enter a valid due date';
-    }
-
-    return next;
-  };
-
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = event.target;
-
-    setValues((current) => ({
-      ...current,
-      [name]: value,
-    }));
-
-    setErrors((current) => ({
-      ...current,
-      [name]: undefined,
-      root: undefined,
-    }));
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const nextErrors = validate(values);
-    if (Object.keys(nextErrors).length > 0) {
-      setErrors(nextErrors);
-      return;
-    }
-
-    setIsSubmitting(true);
-    setErrors({});
-    try {
-      await onSubmit(values);
-    } catch (err) {
-      setErrors({
-        root: err instanceof Error ? err.message : 'Something went wrong',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
@@ -167,13 +76,9 @@ export function TaskForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
             aria-invalid={!!errors.status}
             aria-describedby={errors.status ? 'status-error' : undefined}
           >
-            {statusOptions.map((option) => (
+            {STATUS_OPTIONS.map((option) => (
               <option key={option} value={option}>
-                {option === 'PENDING'
-                  ? 'Pending'
-                  : option === 'IN_PROGRESS'
-                  ? 'In progress'
-                  : 'Completed'}
+                {STATUS_LABELS[option]}
               </option>
             ))}
           </select>
@@ -197,9 +102,11 @@ export function TaskForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
             aria-invalid={!!errors.priority}
             aria-describedby={errors.priority ? 'priority-error' : undefined}
           >
-            <option value="LOW">Low</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="HIGH">High</option>
+            {PRIORITY_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {PRIORITY_LABELS[option]}
+              </option>
+            ))}
           </select>
           {errors.priority && (
             <p id="priority-error" className="mt-2 text-sm text-danger">
@@ -236,11 +143,7 @@ export function TaskForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
         {onCancel && (
-          <button
-            type="button"
-            className="btn btn-secondary w-full sm:w-auto"
-            onClick={onCancel}
-          >
+          <button type="button" className="btn btn-secondary w-full sm:w-auto" onClick={onCancel}>
             Cancel
           </button>
         )}

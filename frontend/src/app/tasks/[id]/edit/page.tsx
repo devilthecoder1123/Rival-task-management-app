@@ -1,46 +1,25 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRedirectIfUnauthenticated } from '@/hooks/useAuthGuard';
+import { useTaskDetail } from '@/hooks/useTaskDetail';
+import { api, ApiClientError } from '@/lib/api';
 import { TaskForm, type TaskFormValues } from '@/components/TaskForm';
 import { LoadingSpinner, ErrorState } from '@/components/States';
-import type { Task } from '@/types';
 
 export default function EditTaskPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading } = useAuth();
+  useRedirectIfUnauthenticated(user, loading);
 
-  const [task, setTask] = useState<Task | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!authLoading && !user) router.replace('/login');
-  }, [user, authLoading, router]);
-
-  const fetchTask = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { task } = await api.getTask(params.id);
-      setTask(task);
-    } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Failed to load task.');
-    } finally {
-      setLoading(false);
-    }
-  }, [params.id]);
-
-  useEffect(() => {
-    if (user) fetchTask();
-  }, [user, fetchTask]);
+  const { task, loading: taskLoading, error, fetchTask } = useTaskDetail(params.id, user);
 
   const onSubmit = async (values: TaskFormValues) => {
     if (!task) return;
+
     try {
       await api.updateTask(task.id, {
         title: values.title,
@@ -51,13 +30,11 @@ export default function EditTaskPage() {
       });
       router.push(`/tasks/${task.id}`);
     } catch (err) {
-      throw new Error(
-        err instanceof ApiClientError ? err.message : 'Could not update task.',
-      );
+      throw new Error(err instanceof ApiClientError ? err.message : 'Could not update task.');
     }
   };
 
-  if (authLoading || loading) return <LoadingSpinner />;
+  if (loading || taskLoading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} onRetry={fetchTask} />;
   if (!task) return null;
 

@@ -1,49 +1,28 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRedirectIfUnauthenticated } from '@/hooks/useAuthGuard';
+import { useTaskDetail } from '@/hooks/useTaskDetail';
 import { StatusBadge, PriorityBadge } from '@/components/Badges';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { formatDate, isOverdue } from '@/lib/date';
 import { LoadingSpinner, ErrorState } from '@/components/States';
-import type { Task } from '@/types';
+import { formatDate, isOverdue } from '@/lib/date';
 
 export default function TaskDetailPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading } = useAuth();
+  useRedirectIfUnauthenticated(user, loading);
 
-  const [task, setTask] = useState<Task | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { task, loading: taskLoading, error, fetchTask } = useTaskDetail(params.id, user);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [pageError, setPageError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!authLoading && !user) router.replace('/login');
-  }, [user, authLoading, router]);
-
-  const fetchTask = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { task } = await api.getTask(params.id);
-      setTask(task);
-    } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Failed to load task.');
-    } finally {
-      setLoading(false);
-    }
-  }, [params.id]);
-
-  useEffect(() => {
-    if (user) fetchTask();
-  }, [user, fetchTask]);
-
-  const handleDelete = async () => {
-    if (!task) return;
+  const handleDelete = () => {
     setShowConfirmDelete(true);
   };
 
@@ -55,12 +34,12 @@ export default function TaskDetailPage() {
       await api.deleteTask(task.id);
       router.push('/tasks');
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not delete task.');
+      setPageError(err instanceof ApiClientError ? err.message : 'Could not delete task.');
     }
   };
 
-  if (authLoading || loading) return <LoadingSpinner />;
-  if (error) return <ErrorState message={error} onRetry={fetchTask} />;
+  if (loading || taskLoading) return <LoadingSpinner />;
+  if (error || pageError) return <ErrorState message={error ?? pageError ?? 'Failed to load task.'} onRetry={fetchTask} />;
   if (!task) return null;
 
   const overdue = isOverdue(task.dueDate, task.status);
@@ -84,7 +63,7 @@ export default function TaskDetailPage() {
       <ConfirmDialog
         open={showConfirmDelete}
         title="Delete task?"
-        description={task ? `Are you sure you want to delete “${task.title}”? This cannot be undone.` : ''}
+        description={`Are you sure you want to delete “${task.title}”? This cannot be undone.`}
         confirmLabel="Delete"
         cancelLabel="Cancel"
         onConfirm={confirmDelete}
@@ -97,9 +76,7 @@ export default function TaskDetailPage() {
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <StatusBadge status={task.status} />
             <PriorityBadge priority={task.priority} />
-            <span
-              className={`text-sm ${overdue ? 'text-danger font-medium' : 'text-muted-foreground'}`}
-            >
+            <span className={`text-sm ${overdue ? 'text-danger font-medium' : 'text-muted-foreground'}`}>
               {task.dueDate ? `Due ${formatDate(task.dueDate)}` : 'No due date'}
               {overdue && ' (overdue)'}
             </span>

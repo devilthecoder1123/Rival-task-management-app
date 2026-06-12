@@ -1,20 +1,17 @@
 'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRedirectIfUnauthenticated } from '@/hooks/useAuthGuard';
 import { api, ApiClientError } from '@/lib/api';
 import { TaskForm, type TaskFormValues } from '@/components/TaskForm';
-import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/States';
 
 export default function NewTaskPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
-
-  useEffect(() => {
-    if (!loading && !user) router.replace('/login');
-  }, [user, loading, router]);
+  useRedirectIfUnauthenticated(user, loading);
 
   const onSubmit = async (values: TaskFormValues) => {
     try {
@@ -27,10 +24,7 @@ export default function NewTaskPage() {
       });
       router.push('/tasks');
     } catch (err) {
-      // Re-throw so the form can display the message via its setError('root').
-      throw new Error(
-        err instanceof ApiClientError ? err.message : 'Could not create task.',
-      );
+      throw new Error(err instanceof ApiClientError ? err.message : 'Could not create task.');
     }
   };
 
@@ -45,11 +39,7 @@ export default function NewTaskPage() {
         </Link>
       </div>
       <div className="card">
-        <TaskForm
-          submitLabel="Create task"
-          onSubmit={onSubmit}
-          onCancel={() => router.push('/tasks')}
-        />
+        <TaskForm submitLabel="Create task" onSubmit={onSubmit} onCancel={() => router.push('/tasks')} />
       </div>
     </div>
   );
