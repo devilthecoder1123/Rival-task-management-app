@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { StatusBadge, PriorityBadge } from '@/components/Badges';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { formatDate, isOverdue } from '@/lib/date';
 import { LoadingSpinner, ErrorState } from '@/components/States';
 import type { Task } from '@/types';
@@ -18,6 +19,7 @@ export default function TaskDetailPage() {
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) router.replace('/login');
@@ -42,7 +44,13 @@ export default function TaskDetailPage() {
 
   const handleDelete = async () => {
     if (!task) return;
-    if (!window.confirm(`Delete "${task.title}"? This cannot be undone.`)) return;
+    setShowConfirmDelete(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!task) return;
+    setShowConfirmDelete(false);
+
     try {
       await api.deleteTask(task.id);
       router.push('/tasks');
@@ -72,6 +80,16 @@ export default function TaskDetailPage() {
           </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={showConfirmDelete}
+        title="Delete task?"
+        description={task ? `Are you sure you want to delete “${task.title}”? This cannot be undone.` : ''}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={() => setShowConfirmDelete(false)}
+      />
 
       <article className="card space-y-4">
         <div>
