@@ -24,7 +24,7 @@ export function NavBar() {
                   <span className="ml-2 badge bg-slate-100 text-slate-900">Admin</span>
                 )}
               </span>
-              <button type="button" className="btn btn-secondary">
+              <button type="button" className="btn btn-secondary" onClick={logout}>
                 Log out
               </button>
             </>
