@@ -17,7 +17,11 @@ cleanup() {
 }
 
 trap cleanup INT TERM
-wait -n
-EXIT_CODE=$?
+
+wait "$BACKEND_PID" || BACKEND_EXIT=$?
+wait "$FRONTEND_PID" || FRONTEND_EXIT=$?
+wait "$NGINX_PID" || NGINX_EXIT=$?
+
+EXIT_CODE=${BACKEND_EXIT:-${FRONTEND_EXIT:-${NGINX_EXIT:-0}}}
 cleanup
 exit "$EXIT_CODE"
