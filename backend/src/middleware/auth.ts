@@ -2,10 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/jwt';
 import { UnauthorizedError, ForbiddenError } from '../utils/errors';
 
-/**
- * Requires a valid JWT. Token can come from an httpOnly cookie ("token")
- * or an Authorization: Bearer header (useful for API clients / tests).
- */
+
 export const requireAuth = (req: Request, _res: Response, next: NextFunction): void => {
   try {
     const cookieToken = req.cookies?.token as string | undefined;
@@ -24,7 +21,7 @@ export const requireAuth = (req: Request, _res: Response, next: NextFunction): v
   }
 };
 
-/** Requires the authenticated user to have the ADMIN role. */
+
 export const requireAdmin = (req: Request, _res: Response, next: NextFunction): void => {
   if (!req.user) return next(new UnauthorizedError());
   if (req.user.role !== 'ADMIN') return next(new ForbiddenError('Admin access required'));

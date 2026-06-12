@@ -12,7 +12,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 
 const router = Router();
 
-// All task routes require authentication.
+
 router.use(requireAuth);
 
 router.get('/', validate(listTasksQuerySchema, 'query'), asyncHandler(taskController.listTasks));

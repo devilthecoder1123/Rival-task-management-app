@@ -18,7 +18,4 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY package.json ./
 EXPOSE 4000
-# `db push` syncs the schema without requiring committed SQL migrations — ideal for
-# a fresh demo. For real deployments, use `prisma migrate deploy` with checked-in
-# migrations (see README "Production Notes").
 CMD npx prisma db push --skip-generate --accept-data-loss && node dist/index.js

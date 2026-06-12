@@ -10,7 +10,7 @@ const setAuthCookie = (res: Response, token: string) => {
     httpOnly: true,
     secure: config.COOKIE_SECURE,
     sameSite: config.COOKIE_SECURE ? 'none' : 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    maxAge: 7 * 24 * 60 * 60 * 1000, 
     path: '/',
   });
 };

@@ -1,7 +1,4 @@
-/**
- * Base application error. Carries an HTTP status and a machine-readable code
- * so the global error handler can return consistent responses.
- */
+
 export class AppError extends Error {
   public readonly statusCode: number;
   public readonly code: string;

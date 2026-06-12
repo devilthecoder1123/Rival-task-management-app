@@ -12,10 +12,7 @@ type ValidationSchema<T> = {
   parse(input: unknown): T;
 };
 
-/**
- * Returns middleware that validates a request section against a schema.
- * On success, the validated data replaces the original request section.
- */
+
 export const validate =
   (schema: ValidationSchema<unknown>, source: Source = 'body') =>
   (req: Request, _res: Response, next: NextFunction): void => {

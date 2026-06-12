@@ -26,7 +26,7 @@ export const buildApp = (): Express => {
     app.use(morgan(config.NODE_ENV === 'production' ? 'combined' : 'dev'));
   }
 
-  // Health check (handy for Docker/CI and uptime monitors).
+  
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });

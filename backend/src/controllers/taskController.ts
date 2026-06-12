@@ -13,7 +13,7 @@ export const createTask = async (req: Request, res: Response): Promise<void> => 
 };
 
 export const listTasks = async (req: Request, res: Response): Promise<void> => {
-  // req.query has been validated/transformed by the validate middleware.
+  
   const result = await taskService.listTasks(actorFromReq(req), req.query as never);
   res.json(result);
 };
