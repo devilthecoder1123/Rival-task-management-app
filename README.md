@@ -4,14 +4,14 @@ A full-stack task management application built with Next.js, Express, Prisma, an
 
 ## Tech Stack
 
-| Layer    | Choice                                                                   |
-| -------- | ------------------------------------------------------------------------ |
-| Frontend | Next.js 14 (App Router), TypeScript, Tailwind CSS |
-| Backend  | Node.js, Express, TypeScript, Prisma ORM                                 |
-| Database | PostgreSQL 16                                                            |
-| Auth     | JWT in httpOnly cookies (with `Bearer` header fallback for API clients)  |
-| Testing  | jest Testing Library (frontend)                           |
-| Tooling  | Docker Compose, GitHub Actions                                           |
+| Layer    | Choice                                                                  |
+| -------- | ----------------------------------------------------------------------- |
+| Frontend | Next.js 14 (App Router), TypeScript, Tailwind CSS                       |
+| Backend  | Node.js, Express, TypeScript, Prisma ORM                                |
+| Database | PostgreSQL 16                                                           |
+| Auth     | JWT in httpOnly cookies (with `Bearer` header fallback for API clients) |
+| Testing  | jest Testing Library (frontend)                                         |
+| Tooling  | Docker Compose, GitHub Actions                                          |
 
 ## Project Layout
 
@@ -65,18 +65,17 @@ docker compose down -v
 
 ## Deploying to Render
 
-This repo is now configured for Render using `render.yaml` at the project root. To deploy both services live:
+This repo is now configured for Render using `render.yaml` at the project root. It deploys a single web service for both frontend and backend, plus one PostgreSQL database.
 
 1. Push the repo to GitHub.
 2. Create a new Render account and connect your GitHub repository.
-3. Render will detect `render.yaml` and create three services:
+3. Render will detect `render.yaml` and create two services:
    - `taskapp-db` (PostgreSQL)
-   - `taskapp-backend` (Docker web service)
-   - `taskapp-frontend` (Docker web service)
-4. In Render, update the backend and frontend env vars with the actual generated service URLs.
-5. Use the frontend service URL as your live app link.
+   - `taskapp` (Docker web service)
+4. In Render, update the web service env vars with the actual generated service URL if needed.
+5. Use the Render web service URL as your live app link.
 
-> Note: replace the placeholder values in `render.yaml` for `JWT_SECRET`, `FRONTEND_URL`, and `NEXT_PUBLIC_API_URL` with the real Render service URLs after deployment.
+> Note: replace the placeholder values in `render.yaml` for `JWT_SECRET`, `FRONTEND_URL`, and `NEXT_PUBLIC_API_URL` with the actual Render service URL after deployment.
 
 ## Quick Start — Local Development
 

@@ -6,17 +6,13 @@ services:
     databaseName: taskapp
 
   - type: web_service
-    name: taskapp-backend
+    name: taskapp
     env: docker
     branch: main
-    dockerfilePath: backend/Dockerfile
-    buildCommand: npm install
-    startCommand: npm start
+    dockerfilePath: Dockerfile
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: "4000"
       - key: DATABASE_URL
         fromDatabase:
           name: taskapp-db
@@ -26,19 +22,8 @@ services:
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: FRONTEND_URL
-        value: https://taskapp-frontend.onrender.com
+        value: https://taskapp.onrender.com
       - key: COOKIE_SECURE
         value: "true"
-
-  - type: web_service
-    name: taskapp-frontend
-    env: docker
-    branch: main
-    dockerfilePath: frontend/Dockerfile
-    buildCommand: npm install
-    startCommand: npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
       - key: NEXT_PUBLIC_API_URL
-        value: https://taskapp-backend.onrender.com/api
+        value: https://taskapp.onrender.com/api
