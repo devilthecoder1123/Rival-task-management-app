@@ -16,6 +16,7 @@ COPY --from=deps /app/frontend/node_modules ./frontend/node_modules
 COPY backend ./backend
 COPY frontend ./frontend
 
+RUN cd backend && npx prisma generate
 RUN cd backend && npm run build
 RUN cd frontend && npm run build
 
