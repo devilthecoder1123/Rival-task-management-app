@@ -50,6 +50,7 @@ http {
 EOF
 
 cd /app/backend
+npx prisma migrate deploy
 PORT=${BACKEND_PORT} npm run start &
 BACKEND_PID=$!
 
