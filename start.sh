@@ -5,7 +5,7 @@ PORT=${PORT:-80}
 BACKEND_PORT=4000
 FRONTEND_PORT=3000
 
-cat > /etc/nginx/nginx.conf <<EOF
+cat > /etc/nginx/nginx.conf <<'EOF'
 worker_processes auto;
 error_log /var/log/nginx/error.log warn;
 pid /var/run/nginx.pid;
