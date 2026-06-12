@@ -22,8 +22,8 @@ services:
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: FRONTEND_URL
-        value: https://taskapp.onrender.com
+        value: https://rival-task-management-app.onrender.com
       - key: COOKIE_SECURE
         value: "true"
       - key: NEXT_PUBLIC_API_URL
-        value: https://taskapp.onrender.com/api
+        value: /api
